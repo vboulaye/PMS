@@ -131,3 +131,5 @@ Try to avoid such a solution if your project requires it (see Expert.ino example
 
 For more accurate measurements, you can read several samples (in passive or active mode) and calculate the average.
 > Stable data should be got at least 30 seconds after the sensor wakeup from the sleep mode because of the fan's performance.
+
+The sensor internally gets measurements only every 2.3 seconds at low concentrations (when concentration increases measure rate is faster) but the data is sent every second so you get duplicates without a real way to distinguish them. The checkum embedded in the payload can be used for his purpose (as it is unlikely to get twice the same payload consecutively).

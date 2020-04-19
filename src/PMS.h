@@ -22,6 +22,9 @@ public:
     uint16_t PM_AE_UG_1_0;
     uint16_t PM_AE_UG_2_5;
     uint16_t PM_AE_UG_10_0;
+
+    // checksum of the last payload (useful to track duplicate measurements)
+    uint16_t checksum;
   };
 
   PMS(Stream&);

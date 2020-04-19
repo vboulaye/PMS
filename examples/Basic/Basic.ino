@@ -9,10 +9,16 @@ void setup()
   Serial1.begin(9600);  // GPIO2 (D4 pin on ESP-12E Development Board)
 }
 
+uint16_t previousChecksum;
+
 void loop()
 {
   if (pms.read(data))
   {
+    if (previousChecksum == data.checksum) {
+      Serial1.println("checksum did ot change since previous read probably a duplicate");
+    }
+
     Serial1.print("PM 1.0 (ug/m3): ");
     Serial1.println(data.PM_AE_UG_1_0);
 
@@ -23,6 +29,8 @@ void loop()
     Serial1.println(data.PM_AE_UG_10_0);
 
     Serial1.println();
+    
+    previousChecksum = data.checksum;
   }
 
   // Do other stuff...

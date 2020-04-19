@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "PMS.h"
 
-PMS::PMS(Stream& stream)
+PMS::PMS(Stream &stream)
 {
   this->_stream = &stream;
 }
@@ -9,21 +9,21 @@ PMS::PMS(Stream& stream)
 // Standby mode. For low power consumption and prolong the life of the sensor.
 void PMS::sleep()
 {
-  uint8_t command[] = { 0x42, 0x4D, 0xE4, 0x00, 0x00, 0x01, 0x73 };
+  uint8_t command[] = {0x42, 0x4D, 0xE4, 0x00, 0x00, 0x01, 0x73};
   _stream->write(command, sizeof(command));
 }
 
 // Operating mode. Stable data should be got at least 30 seconds after the sensor wakeup from the sleep mode because of the fan's performance.
 void PMS::wakeUp()
 {
-  uint8_t command[] = { 0x42, 0x4D, 0xE4, 0x00, 0x01, 0x01, 0x74 };
+  uint8_t command[] = {0x42, 0x4D, 0xE4, 0x00, 0x01, 0x01, 0x74};
   _stream->write(command, sizeof(command));
 }
 
 // Active mode. Default mode after power up. In this mode sensor would send serial data to the host automatically.
 void PMS::activeMode()
 {
-  uint8_t command[] = { 0x42, 0x4D, 0xE1, 0x00, 0x01, 0x01, 0x71 };
+  uint8_t command[] = {0x42, 0x4D, 0xE1, 0x00, 0x01, 0x01, 0x71};
   _stream->write(command, sizeof(command));
   _mode = MODE_ACTIVE;
 }
@@ -31,7 +31,7 @@ void PMS::activeMode()
 // Passive mode. In this mode sensor would send serial data to the host only for request.
 void PMS::passiveMode()
 {
-  uint8_t command[] = { 0x42, 0x4D, 0xE1, 0x00, 0x00, 0x01, 0x70 };
+  uint8_t command[] = {0x42, 0x4D, 0xE1, 0x00, 0x00, 0x01, 0x70};
   _stream->write(command, sizeof(command));
   _mode = MODE_PASSIVE;
 }
@@ -41,29 +41,30 @@ void PMS::requestRead()
 {
   if (_mode == MODE_PASSIVE)
   {
-    uint8_t command[] = { 0x42, 0x4D, 0xE2, 0x00, 0x00, 0x01, 0x71 };
+    uint8_t command[] = {0x42, 0x4D, 0xE2, 0x00, 0x00, 0x01, 0x71};
     _stream->write(command, sizeof(command));
   }
 }
 
 // Non-blocking function for parse response.
-bool PMS::read(DATA& data)
+bool PMS::read(DATA &data)
 {
   _data = &data;
   loop();
-  
+
   return _status == STATUS_OK;
 }
 
 // Blocking function for parse response. Default timeout is 1s.
-bool PMS::readUntil(DATA& data, uint16_t timeout)
+bool PMS::readUntil(DATA &data, uint16_t timeout)
 {
   _data = &data;
   uint32_t start = millis();
   do
   {
     loop();
-    if (_status == STATUS_OK) break;
+    if (_status == STATUS_OK)
+      break;
   } while (millis() - start < timeout);
 
   return _status == STATUS_OK;
@@ -133,6 +134,8 @@ void PMS::loop()
           _data->PM_AE_UG_1_0 = makeWord(_payload[6], _payload[7]);
           _data->PM_AE_UG_2_5 = makeWord(_payload[8], _payload[9]);
           _data->PM_AE_UG_10_0 = makeWord(_payload[10], _payload[11]);
+
+          _data->checksum = _checksum;
         }
 
         _index = 0;
