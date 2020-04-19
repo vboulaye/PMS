@@ -1,0 +1,18 @@
+
+language: python
+python:
+    - "2.7"
+sudo: false
+cache:
+    directories:
+        - "~/.platformio"
+env:
+    - PLATFORMIO_CI_SRC=src/PMS.cpp
+    - PLATFORMIO_CI_SRC=examples
+
+install:
+    - pip install -U platformio
+    - platformio update
+
+script:
+    - platformio ci --lib="." --board=espmxdevkit --board=esp12e
